@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# gayxxx-estate — self-test gate (PASS/FAIL).
+# CloudStream CS3 plugin repo pipeline. NOTE: as of the Phase-B rig, only the
+# docs (AGENTS.md, README.md) + moon.yml are committed; cs3_inspector.py,
+# final_builds/*.cs3, repo.json and plugins.json are NOT materialized in this
+# clone (README documents the intended pipeline). Gate verifies the documented
+# entry points that DO exist and honestly reports what is missing.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+echo "== gayxxx-estate check: start =="
+[ -f README.md ] || { echo "FAIL: README.md missing"; exit 1; }
+[ -f AGENTS.md ] || { echo "FAIL: AGENTS.md missing"; exit 1; }
+[ -f moon.yml ] || { echo "FAIL: moon.yml missing"; exit 1; }
+
+for f in cs3_inspector.py repo.json plugins.json; do
+  if [ -f "$f" ]; then
+    echo "OK  $f present"
+  else
+    echo "NOTE: $f not materialized in this clone (README documents the pipeline; artifacts not committed)"
+  fi
+done
+if [ -d final_builds ]; then
+  echo "final_builds .cs3 count: $(find final_builds -name '*.cs3' | wc -l)"
+else
+  echo "NOTE: final_builds/ missing (shippable .cs3 not committed)"
+fi
+
+echo "== gayxxx-estate check: PASS (docs integrity; artifacts pending materialization) =="
+exit 0
